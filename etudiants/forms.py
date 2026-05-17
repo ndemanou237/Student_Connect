@@ -16,7 +16,7 @@ class InscriptionForm(UserCreationForm):
         self.fields['username'].help_text = "Nom d'utilisateur" 
         self.fields['email'].label= "Adresse email" 
         self.fields['password1'].label = "Mot de passe" 
-        self.fields['username'].help_text = "Au moins 8 caractères" 
+        self.fields['password1'].help_text = "Au moins 8 caractères" 
         self.fields['password2'].label = "Confirmer le mot de passe" 
         self.fields['password2'].help_text = "" 
 
@@ -55,7 +55,7 @@ class EtudiantForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         fichier = cleaned_data.get('porfolio_fichier')
-        lien = cleaned_data_get('porfolio_lien')
+        lien = cleaned_data.get('porfolio_lien')
         #verification que au moins un des champs est rempli
         if not fichier and not lien:
             raise forms.ValidationError(
