@@ -22,7 +22,7 @@ def accueil(request):
         etudiants = etudiants.filter(filiere=filiere_choisie)
     #si user tape quelques choses dans la recherche
     if recherche:
-        #filtre par nom ou pernom et importation de Q pour faire les requetes OR
+        #filtre par nom ou prenom et importation de Q pour faire les requetes OR
         from django.db.models import Q
         etudiants = etudiants.filter(
             Q(nom_icontains=recherche) | Q(prenom_icontains=recherche)
@@ -62,3 +62,33 @@ def inscription(request):
 
 
 #troisieme vue : connexion
+def connexion_vue(request):
+    if request.user.is_authenticated:
+        return redirect('etudiants:mon_espace')
+    if request.method == 'POST':
+        form = ConnexionForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            #verification de ces infos dans la base de donnees
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                #creation d'une session pour que django sans souvienne
+                login(request,user)
+                messages.success(request,f"bienvenue {user.username}")
+                #redirection ssi user c'est connecté
+                next_url = request.GET.get('next', 'etudiants:mon_espace')
+                return redirect(next_url)
+            else:
+                messages.error(request,"nom d'utilisateur ou mot de passe incorrect")
+        else:
+            form = ConnexionForm()
+        return render(request,'etudiants/connexion.html',{'form':form})
+
+#quatrième vue : deconnexion
+def deconnexion_vue(request):
+    #destruction de la session avec logout()
+    messages.info(request,"vous avez été déconnecté")
+    return redirect('etudiants:accueil')             
+
+
