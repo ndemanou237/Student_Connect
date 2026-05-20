@@ -1,0 +1,36 @@
+{% extends 'etudiants/base.html' %}
+{% block title %}Supprimer mon profil — PortfolioEtu{% endblock %}
+
+{% block content %}
+<div style="max-width:480px;margin:48px auto;padding:0 16px">
+    <div class="card" style="border-color:#fecaca">
+        <div style="text-align:center;margin-bottom:20px">
+            <i class="ti ti-alert-triangle"
+               style="font-size:40px;color:var(--danger);display:block;margin-bottom:12px"
+               aria-hidden="true"></i>
+            <h1 style="font-size:18px;font-weight:600;margin-bottom:8px">
+                Supprimer mon profil
+            </h1>
+            <p style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+                Tu es sur le point de supprimer définitivement le profil de
+                <strong>{{ etudiant.nom }} {{ etudiant.prenom }}</strong>.
+                Cette action est irréversible.
+            </p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div style="display:flex;gap:10px">
+                <button type="submit" class="btn btn-danger" style="flex:1;justify-content:center">
+                    <i class="ti ti-trash" aria-hidden="true"></i>
+                    Oui, supprimer définitivement
+                </button>
+                <a href="{% url 'etudiants:mon_espace' %}"
+                   class="btn btn-outline" style="flex:1;justify-content:center">
+                    Annuler
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

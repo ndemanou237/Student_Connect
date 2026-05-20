@@ -14,9 +14,9 @@ def accueil(request):
     #recuperation des etudiant specifique avec un filter()
     etudiants = Etudiant.objects.filter(status='valide')
     #recuperation de la filiere
-    filiere_choisie = request.Get.get('filiere', '')
+    filiere_choisie = request.GET.get('filiere', '')
     #recuperation du terme de recherche
-    recherche = request.Get.get('recherche', '')
+    recherche = request.GET.get('recherche', '')
     if filiere_choisie and filiere_choisie != 'toutes':
         #on filitre encore
         etudiants = etudiants.filter(filiere=filiere_choisie)
@@ -81,14 +81,141 @@ def connexion_vue(request):
                 return redirect(next_url)
             else:
                 messages.error(request,"nom d'utilisateur ou mot de passe incorrect")
+                return render(request,'etudiants/connexion.html',{'form':form})
         else:
-            form = ConnexionForm()
+            #form = ConnexionForm()
+            return render(request,'etudiants/connexion.html',{'form':form})
+    else:
+        form = ConnexionForm()
         return render(request,'etudiants/connexion.html',{'form':form})
+
 
 #quatrième vue : deconnexion
 def deconnexion_vue(request):
     #destruction de la session avec logout()
+    logout(request)
     messages.info(request,"vous avez été déconnecté")
     return redirect('etudiants:accueil')             
 
+#cinqième vue : depot du porfolio
+#@login_required si user n'est pas connecté django le redirige automatiquement vers le LOGIN_URL
+@login_required
+def deposer_portfolio(request):
+    #avec hasattr on verifie si un attribut existe à l'occurence on verifie si un user à deje un profil etudiant
+    if hasattr(request.user, 'etudiant'):
+        messages.info(request, "Vous avez déjà déposé un portfolio.")
+        return redirect('etudiants:mon_espace')
+
+    if request.method == 'POST':
+        #request.FILES est un dictionnaird des fichiers uploadés
+        form = EtudiantForm(request.POST, request.FILES)
+        if form.is_valid():
+             #commit=False == on cree un objet mais on ne sauvegarde pas
+            etudiant = form.save(commit=False)
+            #liasion de cet etudiant à l'utilisateur connecté
+            etudiant.user = request.user
+            #attente de l'approbation de l'admin
+            etudiant.statut = 'en_attente'
+            #sauvegarde total dans la base de donnees
+            etudiant.save()
+            messages.success(request, "Portfolio soumis ! En attente de validation.")
+            return redirect('etudiants:mon_espace')
+    else:
+        form = EtudiantForm()
+
+    # on ajoute les stats pour le panneau latéral
+    return render(request, 'etudiants/deposer.html', {
+        'form': form,
+        'total_inscrits': Etudiant.objects.count(),
+        'total_valides': Etudiant.objects.filter(status='valide').count(),
+    })
+
+#sixième vue : MON ESPACE
+@login_required
+def mon_espace(request):
+    #essaie de la recuperation du profil de l'etudiant connecté
+    try:
+        #request.user.etudiant = acces grace au related_name = 'eudiant' du modele
+        etudiant = request.user.etudiant
+    except Etudiant.DoesNotExist:
+        etudiant = None
+    return render(request,'etudiants/mon_espace.html',{'etudiant':etudiant})
+
+#septième vie: MODIFIER SON PROFIL
+@login_required
+def modifier_profil(request):
+    #get_objet_or_404 = recuper l'etudiant ou affiche une page 404
+    etudiant = get_object_or_404(Etudiant, user=request.user) 
+    if request.method == 'POST':
+        #instance = etudiant == on modifie l'etudiant existant
+        form =EtudiantForm(request.POST, request.FILES, instance=etudiant)
+        if form.is_valid():
+            etudiant = form.save(commit=False)
+            #les modification repasse en attente
+            etudiant.status = 'en_attente'
+            etudiant.save()
+            messages.success(request, "Profil modifié. En attente de revalidation")
+            return redirect('sudents:mon_espace')
+        else:
+            form = EtudiantForm(instance=etudiant)
+        return render(request,'etudiants/modifier.html',{
+            'form':form,
+            'etudiant':etudiant
+            })    
+
+#huitième vue : SUPPRIMMER UN PROFIL
+@login_required
+def supprimer_profil(request):
+    etudiant = get_object_or_404(Etudiant, user=request.user)
+    if request.method == 'POST':
+        #.delete() suppression de l'objet dans la BD
+        etudiant.delete()
+        messages.success(request, "votre profil à été supprimé.")
+        return redirect('etudiants:accueil')
+    #si la methode est GET on affiche une page de confirmation avant de supprimer
+    return render(request, 'etudiants/supprimer.html', {'etudiant':etudiant})
+
+#neuvième vue =  DASHBOARD ADMIN
+#si @user_passes_test(est_admin) = si est_admin(user) retourne False, renvoie vers la page de connexion
+@user_passes_test(est_admin)
+def dashboard(request):
+    #recuperation des etudiants groupées par status
+    en_attente = Etudiant.objects.filter(status='en_attente')
+    valides = Etudiant.objects.filter(status='valide')
+    rejetes = Etudiant.objects.filter(status='rejete')
+    return render(request, 'etudiants/dashboard.html', {
+        'en_attente': en_attente,
+        'valides': valides,
+        'rejetes': rejetes,
+        'total' : Etudiant.objects.count(),
+    })
+
+#dixième vue : VALIDER UN PORFOLIO(admin)
+@user_passes_test(est_admin)
+def valider_porfolio(request,etudiant_id):
+    #recuperation de l'etudiant par son ID(celui de l'url)
+    etudiant = get_object_or_404(Etudiant, id=etudiant_id)
+    etudiant.status = 'valide'
+    etudiant.save()
+    messages.success(request, f"Porfolio de {etudiant} validé et publié avec succes")
+    return redirect('etudiants;dashboard')
+
+#onzième vue : REJETER UN PORFOLIO(admin)
+@user_passes_test(est_admin)
+def rejeter_porfolio(request,etudiant_id):
+    etudiant = get_object_or_404(Etudiant, id=etudiant_id)
+    etudiant.status = 'rejete'
+    etudiant.save()
+    messages.warning(request, f"Porfolio de {etudiant} rejeté.")
+    return redirect('etudiants:dashboard')    
+
+#douzième vue : PAGE CONTACT
+def contact(request):
+    return render(request, 'etudiants/contact.html')
+
+
+
+
+       
+        
 

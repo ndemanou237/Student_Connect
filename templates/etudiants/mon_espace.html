@@ -1,0 +1,442 @@
+{% extends 'etudiants/base.html' %}
+{% block title %}Mon espace — PortfolioEtu{% endblock %}
+
+{% block extra_css %}
+<style>
+.espace-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 24px;
+}
+
+.espace-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.espace-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+}
+
+.espace-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* profil en haut de la carte */
+.profile-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.big-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.profile-name {
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.profile-filiere {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+/* badge de statut */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: var(--radius-md);
+    margin-top: 6px;
+}
+
+.status-valide    { background: var(--success-bg); color: var(--success); }
+.status-en_attente { background: var(--warning-bg); color: var(--warning); }
+.status-rejete    { background: var(--danger-bg);  color: var(--danger);  }
+
+/* lignes d'info */
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 0.5px solid var(--border);
+    font-size: 13px;
+}
+
+.info-row:last-child { border-bottom: none; }
+
+.info-row i {
+    color: var(--text-tertiary);
+    font-size: 14px;
+    width: 16px;
+}
+
+.info-link {
+    color: var(--info);
+    font-size: 12px;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+/* boîte de confirmation de validation */
+.validated-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--success-bg);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--success);
+    margin-top: 14px;
+}
+
+.rejected-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--danger-bg);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--danger);
+    margin-top: 14px;
+}
+
+.waiting-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--warning-bg);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--warning);
+    margin-top: 14px;
+}
+
+/* mini stats */
+.mini-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.mini-stat {
+    text-align: center;
+    padding: 12px 8px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+}
+
+.mini-stat-val {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.mini-stat-label {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 3px;
+}
+
+/* historique */
+.activity-item {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 0.5px solid var(--border);
+}
+
+.activity-item:last-child { border-bottom: none; }
+
+.activity-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
+}
+
+.activity-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.activity-date {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+}
+
+/* actions danger */
+.danger-zone {
+    border: 0.5px solid #fecaca;
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    background: #fff5f5;
+}
+
+.danger-zone-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--danger);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.danger-zone-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+    line-height: 1.6;
+}
+
+/* pas encore de portfolio */
+.no-portfolio {
+    text-align: center;
+    padding: 48px 20px;
+}
+
+.no-portfolio i {
+    font-size: 48px;
+    color: var(--text-tertiary);
+    display: block;
+    margin-bottom: 16px;
+}
+
+.no-portfolio h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.no-portfolio p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+@media (max-width: 700px) {
+    .espace-grid { grid-template-columns: 1fr; }
+    .espace-page { padding: 20px 16px; }
+    .espace-title { font-size: 18px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="espace-page">
+
+    <h1 class="espace-title">
+        Bonjour, {{ request.user.username }} 👋
+    </h1>
+    <p class="espace-sub">Gère ton profil et ton portfolio depuis cet espace.</p>
+
+    {% if etudiant %}
+    <!-- ===== L'ÉTUDIANT A UN PROFIL ===== -->
+    <div class="espace-grid">
+
+        <!-- COLONNE GAUCHE -->
+        <div style="display:flex;flex-direction:column;gap:16px">
+
+            <!-- carte profil -->
+            <div class="card">
+                <div class="profile-top">
+                    <div class="big-avatar avatar-{{ etudiant.filiere }}">
+                        {{ etudiant.nom|slice:":1" }}{{ etudiant.prenom|slice:":1" }}
+                    </div>
+                    <div>
+                        <div class="profile-name">{{ etudiant.nom }} {{ etudiant.prenom }}</div>
+                        <div class="profile-filiere">{{ etudiant.get_filiere_display }}</div>
+                        <!-- badge de statut dynamique -->
+                        <div class="status-badge status-{{ etudiant.statut }}">
+                            {% if etudiant.statut == 'valide' %}
+                                <i class="ti ti-circle-check" aria-hidden="true"></i> Profil publié
+                            {% elif etudiant.statut == 'en_attente' %}
+                                <i class="ti ti-clock" aria-hidden="true"></i> En attente de validation
+                            {% else %}
+                                <i class="ti ti-circle-x" aria-hidden="true"></i> Rejeté
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <i class="ti ti-phone" aria-hidden="true"></i>
+                    {{ etudiant.telephone }}
+                </div>
+                <div class="info-row">
+                    <i class="ti ti-mail" aria-hidden="true"></i>
+                    {{ request.user.email }}
+                </div>
+                <div class="info-row">
+                    <i class="ti ti-calendar" aria-hidden="true"></i>
+                    Inscrit le {{ etudiant.date_inscription|date:"d M Y" }}
+                </div>
+                <div class="info-row">
+                    <i class="ti ti-file" aria-hidden="true"></i>
+                    {% if etudiant.portfolio_fichier %}
+                        Fichier portfolio
+                        <a href="{{ etudiant.portfolio_fichier.url }}"
+                           target="_blank"
+                           class="info-link">
+                            Voir <i class="ti ti-external-link"></i>
+                        </a>
+                    {% elif etudiant.portfolio_lien %}
+                        Lien portfolio
+                        <a href="{{ etudiant.portfolio_lien }}"
+                           target="_blank"
+                           class="info-link">
+                            Ouvrir <i class="ti ti-external-link"></i>
+                        </a>
+                    {% endif %}
+                </div>
+
+                <!-- message selon le statut -->
+                {% if etudiant.statut == 'valide' %}
+                <div class="validated-box">
+                    <i class="ti ti-check" aria-hidden="true"></i>
+                    Validé et publié par l'admin le {{ etudiant.date_modification|date:"d M Y" }}
+                </div>
+                {% elif etudiant.statut == 'en_attente' %}
+                <div class="waiting-box">
+                    <i class="ti ti-clock" aria-hidden="true"></i>
+                    En attente — l'admin va examiner ton portfolio sous 24h.
+                </div>
+                {% else %}
+                <div class="rejected-box">
+                    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+                    Rejeté — modifie ton portfolio et renvoie-le.
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- actions rapides -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="ti ti-bolt" aria-hidden="true"></i>
+                    Actions rapides
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                    <a href="{% url 'etudiants:modifier' %}"
+                       class="btn btn-outline btn-full">
+                        <i class="ti ti-edit" aria-hidden="true"></i>
+                        Modifier mon profil
+                    </a>
+                    <a href="{% url 'etudiants:accueil' %}"
+                       class="btn btn-outline btn-full">
+                        <i class="ti ti-eye" aria-hidden="true"></i>
+                        Voir ma fiche publique
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- COLONNE DROITE -->
+        <div style="display:flex;flex-direction:column;gap:16px">
+
+            <!-- historique -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="ti ti-history" aria-hidden="true"></i>
+                    Historique d'activité
+                </div>
+
+                {% if etudiant.statut == 'valide' %}
+                <div class="activity-item">
+                    <div class="activity-dot" style="background:#16a34a"></div>
+                    <div>
+                        <div class="activity-text">Profil validé et publié sur le site</div>
+                        <div class="activity-date">{{ etudiant.date_modification|date:"d M Y à H:i" }}</div>
+                    </div>
+                </div>
+                {% elif etudiant.statut == 'rejete' %}
+                <div class="activity-item">
+                    <div class="activity-dot" style="background:#dc2626"></div>
+                    <div>
+                        <div class="activity-text">Portfolio rejeté par l'administrateur</div>
+                        <div class="activity-date">{{ etudiant.date_modification|date:"d M Y à H:i" }}</div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="activity-item">
+                    <div class="activity-dot" style="background:#d97706"></div>
+                    <div>
+                        <div class="activity-text">Portfolio soumis à l'administration</div>
+                        <div class="activity-date">{{ etudiant.date_inscription|date:"d M Y à H:i" }}</div>
+                    </div>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-dot" style="background:#2563eb"></div>
+                    <div>
+                        <div class="activity-text">Compte créé avec succès</div>
+                        <div class="activity-date">{{ request.user.date_joined|date:"d M Y à H:i" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- zone de suppression -->
+            <div class="danger-zone">
+                <div class="danger-zone-title">
+                    <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+                    Zone dangereuse
+                </div>
+                <p class="danger-zone-text">
+                    La suppression de ton profil est définitive.
+                    Toutes tes informations et ton portfolio seront effacés.
+                </p>
+                <a href="{% url 'etudiants:supprimer' %}"
+                   class="btn btn-danger btn-full">
+                    <i class="ti ti-trash" aria-hidden="true"></i>
+                    Supprimer mon profil
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    {% else %}
+    <!-- ===== PAS ENCORE DE PROFIL ===== -->
+    <div class="card no-portfolio">
+        <i class="ti ti-file-off" aria-hidden="true"></i>
+        <h2>Tu n'as pas encore de portfolio</h2>
+        <p>Dépose ton premier portfolio pour apparaître sur la plateforme.</p>
+        <a href="{% url 'etudiants:deposer' %}" class="btn btn-primary">
+            <i class="ti ti-plus" aria-hidden="true"></i>
+            Déposer mon portfolio
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,475 @@
+{% extends 'etudiants/base.html' %}
+{% block title %}Dashboard Admin — PortfolioEtu{% endblock %}
+
+{% block extra_css %}
+<style>
+.dash-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 24px;
+}
+
+.dash-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dash-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+}
+
+/* grille des stats */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: var(--bg-primary);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+}
+
+.stat-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.stat-val {
+    font-size: 26px;
+    font-weight: 600;
+}
+
+.stat-sub {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 3px;
+}
+
+/* tableau */
+.table-card {
+    background: var(--bg-primary);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.table-head {
+    padding: 14px 18px;
+    border-bottom: 0.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-secondary);
+}
+
+.table-head-title {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.dash-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.dash-table th {
+    padding: 10px 18px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    border-bottom: 0.5px solid var(--border);
+}
+
+.dash-table td {
+    padding: 12px 18px;
+    border-bottom: 0.5px solid var(--border);
+    vertical-align: middle;
+}
+
+.dash-table tr:last-child td {
+    border-bottom: none;
+}
+
+.dash-table tr:hover td {
+    background: var(--bg-secondary);
+}
+
+.td-name { font-weight: 500; }
+.td-phone { color: var(--text-secondary); font-size: 12px; }
+
+/* actions du tableau */
+.table-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+/* tableau responsive */
+.table-wrapper {
+    overflow-x: auto; /* scroll horizontal sur petit écran */
+}
+
+/* onglets de navigation */
+.dash-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    border-bottom: 0.5px solid var(--border);
+    padding-bottom: 0;
+}
+
+.dash-tab {
+    padding: 8px 16px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -0.5px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all var(--transition);
+}
+
+.dash-tab:hover { color: var(--text-primary); }
+
+.dash-tab.active {
+    color: var(--text-primary);
+    border-bottom-color: var(--text-primary);
+    font-weight: 500;
+}
+
+.tab-count {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+@media (max-width: 900px) {
+    .stats-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 600px) {
+    .dash-page { padding: 16px; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .dash-title { font-size: 18px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dash-page">
+
+    <h1 class="dash-title">
+        <i class="ti ti-layout-dashboard" aria-hidden="true"></i>
+        Tableau de bord
+    </h1>
+    <p class="dash-sub">
+        Gère les portfolios soumis par les étudiants.
+    </p>
+
+    <!-- ===== STATISTIQUES ===== -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total inscrits</div>
+            <div class="stat-val">{{ total }}</div>
+            <div class="stat-sub">tous statuts</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">En attente</div>
+            <div class="stat-val" style="color:var(--warning)">
+                {{ en_attente|length }}
+            </div>
+            <div class="stat-sub">à valider</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Validés</div>
+            <div class="stat-val" style="color:var(--success)">
+                {{ valides|length }}
+            </div>
+            <div class="stat-sub">publiés</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Rejetés</div>
+            <div class="stat-val" style="color:var(--danger)">
+                {{ rejetes|length }}
+            </div>
+            <div class="stat-sub">ce mois</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Taux validation</div>
+            <div class="stat-val" style="color:var(--info)">
+                {% if total %}
+                    {{ valides|length|floatformat:0 }}%
+                {% else %}
+                    0%
+                {% endif %}
+            </div>
+            <div class="stat-sub">des soumissions</div>
+        </div>
+    </div>
+
+    <!-- ===== ONGLETS ===== -->
+    <div class="dash-tabs">
+        <a href="#en-attente" class="dash-tab active">
+            <i class="ti ti-clock" aria-hidden="true"></i>
+            En attente
+            <span class="tab-count badge-warning">{{ en_attente|length }}</span>
+        </a>
+        <a href="#valides" class="dash-tab">
+            <i class="ti ti-circle-check" aria-hidden="true"></i>
+            Validés
+            <span class="tab-count badge-success">{{ valides|length }}</span>
+        </a>
+        <a href="#rejetes" class="dash-tab">
+            <i class="ti ti-circle-x" aria-hidden="true"></i>
+            Rejetés
+            <span class="tab-count badge-danger">{{ rejetes|length }}</span>
+        </a>
+    </div>
+
+    <!-- ===== TABLEAU EN ATTENTE ===== -->
+    <div id="en-attente" class="table-card">
+        <div class="table-head">
+            <i class="ti ti-clock" style="color:var(--warning)" aria-hidden="true"></i>
+            <span class="table-head-title">Demandes en attente de validation</span>
+            <span class="badge badge-warning" style="margin-left:4px">
+                {{ en_attente|length }} nouvelle{{ en_attente|length|pluralize }}
+            </span>
+        </div>
+        <div class="table-wrapper">
+            <table class="dash-table">
+                <thead>
+                    <tr>
+                        <th>Étudiant</th>
+                        <th>Filière</th>
+                        <th>Téléphone</th>
+                        <th>Portfolio</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for etudiant in en_attente %}
+                    <tr>
+                        <td>
+                            <div class="td-name">{{ etudiant.nom }} {{ etudiant.prenom }}</div>
+                            <div class="td-phone">{{ etudiant.user.email }}</div>
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ etudiant.filiere }}">
+                                {{ etudiant.get_filiere_display }}
+                            </span>
+                        </td>
+                        <td style="color:var(--text-secondary)">{{ etudiant.telephone }}</td>
+                        <td>
+                            {% if etudiant.portfolio_fichier %}
+                            <a href="{{ etudiant.portfolio_fichier.url }}"
+                               target="_blank"
+                               class="btn btn-outline"
+                               style="padding:4px 10px;font-size:11px">
+                                <i class="ti ti-file" aria-hidden="true"></i> Voir
+                            </a>
+                            {% elif etudiant.portfolio_lien %}
+                            <a href="{{ etudiant.portfolio_lien }}"
+                               target="_blank"
+                               class="btn btn-outline"
+                               style="padding:4px 10px;font-size:11px">
+                                <i class="ti ti-external-link" aria-hidden="true"></i> Ouvrir
+                            </a>
+                            {% else %}
+                            <span style="color:var(--text-tertiary);font-size:12px">—</span>
+                            {% endif %}
+                        </td>
+                        <td style="color:var(--text-secondary);font-size:12px">
+                            {{ etudiant.date_inscription|date:"d M Y" }}
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <!-- bouton valider -->
+                                <a href="{% url 'etudiants:valider' etudiant.id %}"
+                                   class="btn btn-success"
+                                   style="padding:5px 10px;font-size:12px"
+                                   data-confirm="Valider le portfolio de {{ etudiant.nom }} {{ etudiant.prenom }} ?">
+                                    <i class="ti ti-check" aria-hidden="true"></i>
+                                    Valider
+                                </a>
+                                <!-- bouton rejeter -->
+                                <a href="{% url 'etudiants:rejeter' etudiant.id %}"
+                                   class="btn btn-danger"
+                                   style="padding:5px 10px;font-size:12px"
+                                   data-confirm="Rejeter le portfolio de {{ etudiant.nom }} {{ etudiant.prenom }} ?">
+                                    <i class="ti ti-x" aria-hidden="true"></i>
+                                    Rejeter
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align:center;padding:32px;color:var(--text-secondary)">
+                            <i class="ti ti-check-all"
+                               style="font-size:28px;display:block;margin-bottom:8px;color:var(--success)"
+                               aria-hidden="true"></i>
+                            Aucune demande en attente — tout est à jour !
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===== TABLEAU VALIDÉS ===== -->
+    <div id="valides" class="table-card">
+        <div class="table-head">
+            <i class="ti ti-circle-check" style="color:var(--success)" aria-hidden="true"></i>
+            <span class="table-head-title">Portfolios validés et publiés</span>
+            <span class="badge badge-success" style="margin-left:4px">
+                {{ valides|length }}
+            </span>
+        </div>
+        <div class="table-wrapper">
+            <table class="dash-table">
+                <thead>
+                    <tr>
+                        <th>Étudiant</th>
+                        <th>Filière</th>
+                        <th>Téléphone</th>
+                        <th>Portfolio</th>
+                        <th>Validé le</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for etudiant in valides %}
+                    <tr>
+                        <td>
+                            <div class="td-name">{{ etudiant.nom }} {{ etudiant.prenom }}</div>
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ etudiant.filiere }}">
+                                {{ etudiant.get_filiere_display }}
+                            </span>
+                        </td>
+                        <td style="color:var(--text-secondary)">{{ etudiant.telephone }}</td>
+                        <td>
+                            {% if etudiant.portfolio_fichier %}
+                            <a href="{{ etudiant.portfolio_fichier.url }}"
+                               target="_blank"
+                               class="btn btn-outline"
+                               style="padding:4px 10px;font-size:11px">
+                                <i class="ti ti-file" aria-hidden="true"></i> Voir
+                            </a>
+                            {% elif etudiant.portfolio_lien %}
+                            <a href="{{ etudiant.portfolio_lien }}"
+                               target="_blank"
+                               class="btn btn-outline"
+                               style="padding:4px 10px;font-size:11px">
+                                <i class="ti ti-external-link" aria-hidden="true"></i> Ouvrir
+                            </a>
+                            {% endif %}
+                        </td>
+                        <td style="color:var(--text-secondary);font-size:12px">
+                            {{ etudiant.date_modification|date:"d M Y" }}
+                        </td>
+                        <td>
+                            <a href="{% url 'etudiants:rejeter' etudiant.id %}"
+                               class="btn btn-danger"
+                               style="padding:5px 10px;font-size:12px"
+                               data-confirm="Retirer le portfolio de {{ etudiant.nom }} ?">
+                                <i class="ti ti-x" aria-hidden="true"></i>
+                                Retirer
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align:center;padding:32px;color:var(--text-secondary)">
+                            Aucun portfolio validé pour le moment.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===== TABLEAU REJETÉS ===== -->
+    <div id="rejetes" class="table-card">
+        <div class="table-head">
+            <i class="ti ti-circle-x" style="color:var(--danger)" aria-hidden="true"></i>
+            <span class="table-head-title">Portfolios rejetés</span>
+            <span class="badge badge-danger" style="margin-left:4px">
+                {{ rejetes|length }}
+            </span>
+        </div>
+        <div class="table-wrapper">
+            <table class="dash-table">
+                <thead>
+                    <tr>
+                        <th>Étudiant</th>
+                        <th>Filière</th>
+                        <th>Téléphone</th>
+                        <th>Date rejet</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for etudiant in rejetes %}
+                    <tr>
+                        <td>
+                            <div class="td-name">{{ etudiant.nom }} {{ etudiant.prenom }}</div>
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ etudiant.filiere }}">
+                                {{ etudiant.get_filiere_display }}
+                            </span>
+                        </td>
+                        <td style="color:var(--text-secondary)">{{ etudiant.telephone }}</td>
+                        <td style="color:var(--text-secondary);font-size:12px">
+                            {{ etudiant.date_modification|date:"d M Y" }}
+                        </td>
+                        <td>
+                            <!-- l'admin peut revalider un rejeté -->
+                            <a href="{% url 'etudiants:valider' etudiant.id %}"
+                               class="btn btn-success"
+                               style="padding:5px 10px;font-size:12px"
+                               data-confirm="Valider quand même ce portfolio ?">
+                                <i class="ti ti-check" aria-hidden="true"></i>
+                                Revalider
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align:center;padding:32px;color:var(--text-secondary)">
+                            Aucun portfolio rejeté.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

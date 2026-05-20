@@ -33,7 +33,14 @@ class Etudiant(models.Model):
         default='autre'
     )
 
-    porfolio_lien = models.URLField(
+    #FileField = champ pour uploader un fichier
+    portfolio_fichier = models.FileField(
+        upload_to='portfolio/',#fichier stockées dans media/portfolio
+        blank=True,
+        null=True
+    )
+
+    portfolio_lien = models.URLField(
         blank=True,
         null=True
     )

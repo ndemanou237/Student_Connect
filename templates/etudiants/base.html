@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PortfolioEtu{% endblock %}</title>
+    {% load static %}
+    <!-- Google Fonts — police moderne -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Tabler Icons — icônes qu'on a utilisées dans les maquettes -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+
+    <!-- notre fichier CSS principal -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <!-- block extra_css = pages qui ont besoin de CSS supplémentaire -->
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    
+    <nav class="navbar">
+        <div class="nav-container">
+
+            <!-- LOGO -->
+            <a href="{% url 'etudiants:accueil' %}" class="nav-logo">
+                <div class="logo-icon">
+                    <i class="ti ti-school" aria-hidden="true"></i>
+                </div>
+                <span class="logo-text">PortfolioEtu</span>
+            </a>
+
+            <!-- BOUTON MENU MOBILE (hamburger) -->
+           
+            <button class="nav-toggle" id="navToggle" aria-label="Ouvrir le menu">
+                <i class="ti ti-menu-2"></i>
+            </button>
+
+            <!-- LIENS DE NAVIGATION -->
+            <div class="nav-links" id="navLinks">
+                <a href="{% url 'etudiants:accueil' %}"
+                   class="nav-link {% if request.resolver_match.url_name == 'accueil' %}active{% endif %}">
+                    <i class="ti ti-home" aria-hidden="true"></i>
+                    <span>Accueil</span>
+                </a>
+                <a href="{% url 'etudiants:contact' %}"
+                   class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}">
+                    <i class="ti ti-address-book" aria-hidden="true"></i>
+                    <span>Contact admin</span>
+                </a>
+
+                <!-- si l'utilisateur n'est pas connecté -->
+                {% if not request.user.is_authenticated %}
+                <a href="{% url 'etudiants:inscription' %}"
+                   class="nav-link {% if request.resolver_match.url_name == 'inscription' %}active{% endif %}">
+                    <i class="ti ti-user-plus" aria-hidden="true"></i>
+                    <span>Inscription</span>
+                </a>
+                {% endif %}
+
+                <a href="#" class="nav-link">
+                    <i class="ti ti-info-circle" aria-hidden="true"></i>
+                    <span>À propos</span>
+                </a>
+            </div>
+
+            <!-- BOUTONS DROITE -->
+            <div class="nav-actions">
+                {% if request.user.is_authenticated %}
+                    <!-- si admin : bouton dashboard -->
+                    {% if request.user.is_staff %}
+                    <a href="{% url 'etudiants:dashboard' %}" class="btn btn-outline">
+                        <i class="ti ti-layout-dashboard" aria-hidden="true"></i>
+                        Dashboard
+                    </a>
+                    {% else %}
+                    <!-- si étudiant connecté : bouton mon espace -->
+                    <a href="{% url 'etudiants:mon_espace' %}" class="btn btn-outline">
+                        <i class="ti ti-user" aria-hidden="true"></i>
+                        Mon espace
+                    </a>
+                    {% endif %}
+                    <!-- bouton déconnexion -->
+                    <a href="{% url 'etudiants:deconnexion' %}" class="btn btn-ghost">
+                        <i class="ti ti-logout" aria-hidden="true"></i>
+                        Déconnexion
+                    </a>
+                {% else %}
+                    <a href="{% url 'etudiants:connexion' %}" class="btn btn-outline">
+                        Se connecter
+                    </a>
+                    <a href="{% url 'etudiants:deposer' %}" class="btn btn-primary">
+                        <i class="ti ti-plus" aria-hidden="true"></i>
+                        Déposer mon portfolio
+                    </a>
+                {% endif %}
+            </div>
+
+        </div>
+    </nav>
+
+   
+    <!-- Django envoie des messages temporaires (succès, erreur, info) -->
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+        <!-- message.tags = 'success', 'error', 'warning', 'info' -->
+        <div class="message message-{{ message.tags }}">
+            {% if message.tags == 'success' %}
+                <i class="ti ti-circle-check" aria-hidden="true"></i>
+            {% elif message.tags == 'error' %}
+                <i class="ti ti-alert-circle" aria-hidden="true"></i>
+            {% elif message.tags == 'warning' %}
+                <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+            {% else %}
+                <i class="ti ti-info-circle" aria-hidden="true"></i>
+            {% endif %}
+            {{ message }}
+            <button class="message-close" onclick="this.parentElement.remove()">
+                <i class="ti ti-x"></i>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    
+    <!-- block content = chaque page met son contenu ici -->
+    <main class="main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+   
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-logo">
+                <i class="ti ti-school" aria-hidden="true"></i>
+                <span>Portfolio</span>
+            </div>
+            <p class="footer-text">
+                Plateforme de portfolios étudiants — tous les profils sont vérifiés par l'administration.
+            </p>
+            <p class="footer-copy">© 2026 PortfolioEtu. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <!-- fichier JavaScript principal -->
+    <script src="{% static 'js/main.js' %}"></script>
+
+    <!-- block extra_js = pages qui ont besoin de JS supplémentaire -->
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>

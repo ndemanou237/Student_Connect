@@ -1,0 +1,511 @@
+
+{% extends 'etudiants/base.html' %}
+
+{% block title %}Accueil — PortfolioEtu{% endblock %}
+
+{% block extra_css %}
+<style>
+
+.hero {
+    background: var(--bg-primary);
+    border-bottom: 0.5px solid var(--border);
+    padding: 40px 0 32px;
+}
+
+.hero-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.hero-title {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.hero-sub {
+    font-size: 14px;
+    color: var(--text-secondary);
+    max-width: 520px;
+    line-height: 1.7;
+    margin-bottom: 24px;
+}
+
+.hero-stats {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+}
+
+.hero-stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.hero-stat strong {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.hero-stat-verified {
+    color: var(--success);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+}
+
+.filter-section {
+    background: var(--bg-primary);
+    border-bottom: 0.5px solid var(--border);
+    padding: 14px 0;
+    position: sticky;   /* reste visible quand on scrolle */
+    top: var(--navbar-height);
+    z-index: 100;
+}
+
+.filter-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+.filter-pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.pill {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 0.5px solid var(--border);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all var(--transition);
+    white-space: nowrap;
+}
+
+.pill:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.pill.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* barre de recherche */
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 6px 12px;
+    background: var(--bg-secondary);
+    margin-left: auto;
+}
+
+.search-form input {
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 13px;
+    color: var(--text-primary);
+    width: 160px;
+    font-family: inherit;
+}
+
+.search-form input::placeholder {
+    color: var(--text-tertiary);
+}
+
+.search-form button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+}
+
+/* ===== GRILLE DES PORTFOLIOS ===== */
+.portfolios-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.count-info {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+/* grille responsive :
+   - 3 colonnes sur grand écran
+   - 2 colonnes sur tablette
+   - 1 colonne sur mobile */
+.portfolios-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+/* ===== CARTE PORTFOLIO ===== */
+.portfolio-card {
+    background: var(--bg-primary);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    transition: box-shadow var(--transition);
+}
+
+.portfolio-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.portfolio-card-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+/* avatar avec initiales */
+.avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+/* couleurs d'avatar selon la filière */
+.avatar-informatique { background: #eff6ff; color: #1d4ed8; }
+.avatar-finance      { background: #f0fdf4; color: #15803d; }
+.avatar-droit        { background: #fdf2f8; color: #9d174d; }
+.avatar-genie_civil  { background: #f0fdfa; color: #0f766e; }
+.avatar-commerce     { background: #fffbeb; color: #b45309; }
+.avatar-medecine     { background: #f5f3ff; color: #6d28d9; }
+.avatar-autre        { background: var(--bg-tertiary); color: var(--text-secondary); }
+
+.portfolio-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.portfolio-filiere {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+.portfolio-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.portfolio-info i {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    width: 14px;
+}
+
+.portfolio-card-footer {
+    border-top: 0.5px solid var(--border);
+    margin-top: 12px;
+    padding-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.portfolio-link {
+    font-size: 12px;
+    color: var(--info);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: opacity var(--transition);
+}
+
+.portfolio-link:hover {
+    opacity: 0.75;
+}
+
+/* ===== MESSAGE VIDE ===== */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+
+.empty-state i {
+    font-size: 48px;
+    color: var(--text-tertiary);
+    margin-bottom: 16px;
+    display: block;
+}
+
+.empty-state h3 {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+    .portfolios-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .portfolios-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-title {
+        font-size: 22px;
+    }
+
+    .hero-stats {
+        gap: 16px;
+    }
+
+    .filter-inner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .search-form {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .search-form input {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ===== SECTION HERO ===== -->
+<section class="hero">
+    <div class="hero-inner">
+        <h1 class="hero-title">Portfolios des étudiants</h1>
+        <p class="hero-sub">
+            Découvrez les travaux et profils des étudiants de toutes les filières.
+            Chaque portfolio a été vérifié et validé par l'administration.
+        </p>
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <strong>{{ total_inscrits }}</strong>
+                étudiants inscrits
+            </div>
+            <div class="hero-stat">
+                <strong>{{ total_valides }}</strong>
+                portfolios publiés
+            </div>
+            <div class="hero-stat">
+                <strong>{{ filieres|length }}</strong>
+                filières représentées
+            </div>
+            <div class="hero-stat-verified">
+                <i class="ti ti-circle-check" aria-hidden="true"></i>
+                Tous les profils sont vérifiés
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== BARRE DE FILTRES ===== -->
+<div class="filter-section">
+    <div class="filter-inner">
+        <span class="filter-label">
+            <i class="ti ti-filter" aria-hidden="true"></i>
+            Filière :
+        </span>
+
+        <div class="filter-pills">
+            <!-- lien "Toutes" — actif si aucune filière choisie -->
+            <a href="{% url 'etudiants:accueil' %}"
+               class="pill {% if not filiere_choisie or filiere_choisie == 'toutes' %}active{% endif %}">
+                Toutes
+            </a>
+
+            <!-- on boucle sur toutes les filières du modèle -->
+            <!-- filiere.0 = la valeur ('informatique') -->
+            <!-- filiere.1 = le label ('Génie Informatique') -->
+            {% for filiere in filieres %}
+            <a href="?filiere={{ filiere.0 }}"
+               class="pill {% if filiere_choisie == filiere.0 %}active{% endif %}">
+                {{ filiere.1 }}
+            </a>
+            {% endfor %}
+        </div>
+
+        <!-- formulaire de recherche -->
+        <!-- method="get" = les données passent dans l'URL (?recherche=...) -->
+        <form class="search-form" method="get" action="{% url 'etudiants:accueil' %}">
+            <!-- on garde la filière choisie pendant la recherche -->
+            {% if filiere_choisie %}
+            <input type="hidden" name="filiere" value="{{ filiere_choisie }}">
+            {% endif %}
+            <i class="ti ti-search" style="color:var(--text-tertiary);font-size:15px" aria-hidden="true"></i>
+            <input type="text"
+                   name="recherche"
+                   placeholder="Rechercher un étudiant..."
+                   value="{{ recherche }}">
+            <button type="submit" aria-label="Rechercher">
+                <i class="ti ti-arrow-right"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- ===== GRILLE DES PORTFOLIOS ===== -->
+<div class="portfolios-section">
+
+    <!-- nombre de résultats -->
+    <p class="count-info">
+        {{ etudiants|length }} portfolio{{ etudiants|length|pluralize }}
+        {% if filiere_choisie and filiere_choisie != 'toutes' %}
+            dans cette filière
+        {% endif %}
+        {% if recherche %}
+            pour "{{ recherche }}"
+        {% endif %}
+        — triés par date de validation
+    </p>
+
+    {% if etudiants %}
+    <div class="portfolios-grid">
+
+        <!-- on boucle sur chaque étudiant validé -->
+        {% for etudiant in etudiants %}
+        <div class="portfolio-card">
+
+            <div class="portfolio-card-top">
+                <!-- avatar avec les initiales du nom et prénom -->
+                <div class="avatar avatar-{{ etudiant.filiere }}">
+                    <!-- slice:":1" = prend seulement le 1er caractère -->
+                    {{ etudiant.nom|slice:":1" }}{{ etudiant.prenom|slice:":1" }}
+                </div>
+                <div>
+                    <div class="portfolio-name">{{ etudiant.nom }} {{ etudiant.prenom }}</div>
+                    <div class="portfolio-filiere">{{ etudiant.get_filiere_display }}</div>
+                    <!-- get_filiere_display = retourne le label lisible ('Génie Informatique')
+                         au lieu de la valeur stockée ('informatique') -->
+                </div>
+            </div>
+
+            <div class="portfolio-info">
+                <i class="ti ti-phone" aria-hidden="true"></i>
+                {{ etudiant.telephone }}
+            </div>
+
+            <div class="portfolio-info">
+                <i class="ti ti-calendar" aria-hidden="true"></i>
+                Validé le {{ etudiant.date_modification|date:"d M Y" }}
+                <!-- |date:"d M Y" = formate la date : "13 mai 2026" -->
+            </div>
+
+            <div class="portfolio-info">
+                <i class="ti ti-file" aria-hidden="true"></i>
+                {% if etudiant.portfolio_fichier %}
+                    Fichier PDF
+                {% elif etudiant.portfolio_lien %}
+                    Lien portfolio
+                {% endif %}
+            </div>
+
+            <div class="portfolio-card-footer">
+                <!-- badge filière coloré -->
+                <span class="badge badge-{{ etudiant.filiere }}">
+                    {{ etudiant.get_filiere_display }}
+                </span>
+
+                <!-- lien vers le portfolio -->
+                {% if etudiant.portfolio_fichier %}
+                <a href="{{ etudiant.portfolio_fichier.url }}"
+                   target="_blank"
+                   class="portfolio-link">
+                    <i class="ti ti-external-link" aria-hidden="true"></i>
+                    Voir le portfolio
+                </a>
+                {% elif etudiant.portfolio_lien %}
+                <a href="{{ etudiant.portfolio_lien }}"
+                   target="_blank"
+                   class="portfolio-link">
+                    <i class="ti ti-external-link" aria-hidden="true"></i>
+                    Voir le portfolio
+                </a>
+                {% endif %}
+            </div>
+
+        </div>
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+    <!-- affiché si aucun résultat -->
+    <div class="empty-state">
+        <i class="ti ti-mood-empty" aria-hidden="true"></i>
+        <h3>Aucun portfolio trouvé</h3>
+        <p>
+            {% if recherche %}
+                Aucun résultat pour "{{ recherche }}". Essaie un autre terme.
+            {% else %}
+                Aucun portfolio dans cette filière pour le moment.
+            {% endif %}
+        </p>
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

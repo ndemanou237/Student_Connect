@@ -24,7 +24,7 @@ class InscriptionForm(UserCreationForm):
 class EtudiantForm(forms.ModelForm):
     class Meta:
         model = Etudiant
-        fields = ['nom','prenom', 'telephone', 'filiere', 'porfolio_fichier', 'porfolio_lien']
+        fields = ['nom','prenom', 'telephone', 'filiere', 'portfolio_fichier', 'portfolio_lien']
         widgets = {
             'nom': forms.TextInput(attrs={
                 'class': 'form-control',

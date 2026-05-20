@@ -1,0 +1,461 @@
+{% extends 'etudiants/base.html' %}
+{% block title %}Déposer mon portfolio — PortfolioEtu{% endblock %}
+
+{% block extra_css %}
+<style>
+.deposer-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 24px;
+}
+
+.deposer-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.deposer-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+}
+
+/* grille 2 colonnes : formulaire + panneau info */
+.deposer-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 20px;
+    align-items: start;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+/* zone d'upload */
+.upload-zone {
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    text-align: center;
+    background: var(--bg-secondary);
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.upload-zone:hover {
+    border-color: var(--primary);
+    background: var(--bg-tertiary);
+}
+
+.upload-zone i {
+    font-size: 32px;
+    color: var(--text-tertiary);
+    display: block;
+    margin-bottom: 8px;
+}
+
+.upload-zone-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.upload-zone-hint {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+}
+
+.separator {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin: 12px 0;
+    position: relative;
+}
+
+.separator::before,
+.separator::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 44%;
+    height: 0.5px;
+    background: var(--border);
+}
+
+.separator::before { left: 0; }
+.separator::after  { right: 0; }
+
+/* panneau d'informations */
+.info-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.info-card {
+    background: var(--bg-primary);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+}
+
+.info-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+/* étapes numérotées */
+.step-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    align-items: flex-start;
+}
+
+.step-item:last-child { margin-bottom: 0; }
+
+.step-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--info-bg);
+    color: var(--info);
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.step-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* ce qui sera visible */
+.visible-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.visible-item:last-child { margin-bottom: 0; }
+
+.visible-item i {
+    color: var(--success);
+    font-size: 14px;
+}
+
+/* stats rapides */
+.quick-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.quick-stat {
+    text-align: center;
+    padding: 10px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+}
+
+.quick-stat-val {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.quick-stat-label {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+/* avertissement */
+.notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    font-size: 12px;
+    margin-top: 14px;
+    line-height: 1.5;
+}
+
+.notice-warning {
+    background: var(--warning-bg);
+    color: var(--warning);
+    border: 0.5px solid #fde68a;
+}
+
+@media (max-width: 900px) {
+    .deposer-grid {
+        grid-template-columns: 1fr;
+    }
+    .info-panel {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .deposer-page { padding: 20px 16px; }
+    .form-row { grid-template-columns: 1fr; }
+    .info-panel { grid-template-columns: 1fr; }
+    .deposer-title { font-size: 18px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="deposer-page">
+
+    <h1 class="deposer-title">Déposer mon portfolio</h1>
+    <p class="deposer-sub">
+        Rejoins la plateforme — ton profil sera visible après validation par l'admin.
+    </p>
+
+    <div class="deposer-grid">
+
+        <!-- ===== FORMULAIRE ===== -->
+        <div class="card">
+            <div class="card-title">
+                <i class="ti ti-user" aria-hidden="true"></i>
+                Mes informations
+            </div>
+
+            <form method="post" enctype="multipart/form-data" novalidate>
+                <!-- enctype="multipart/form-data" OBLIGATOIRE pour les uploads de fichiers -->
+                {% csrf_token %}
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.nom.id_for_label }}">
+                            Nom <span style="color:var(--danger)">*</span>
+                        </label>
+                        {{ form.nom }}
+                        {% if form.nom.errors %}
+                            {% for error in form.nom.errors %}
+                            <div class="form-error">
+                                <i class="ti ti-alert-circle"></i> {{ error }}
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.prenom.id_for_label }}">
+                            Prénom <span style="color:var(--danger)">*</span>
+                        </label>
+                        {{ form.prenom }}
+                        {% if form.prenom.errors %}
+                            {% for error in form.prenom.errors %}
+                            <div class="form-error">
+                                <i class="ti ti-alert-circle"></i> {{ error }}
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.telephone.id_for_label }}">
+                        Numéro de téléphone <span style="color:var(--danger)">*</span>
+                    </label>
+                    {{ form.telephone }}
+                    {% if form.telephone.errors %}
+                        {% for error in form.telephone.errors %}
+                        <div class="form-error">
+                            <i class="ti ti-alert-circle"></i> {{ error }}
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.filiere.id_for_label }}">
+                        Filière <span style="color:var(--danger)">*</span>
+                    </label>
+                    {{ form.filiere }}
+                    {% if form.filiere.errors %}
+                        {% for error in form.filiere.errors %}
+                        <div class="form-error">
+                            <i class="ti ti-alert-circle"></i> {{ error }}
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        Fichier portfolio (PDF, DOCX)
+                    </label>
+                    <!-- on cache l'input file par défaut (moche) -->
+                    <!-- et on le remplace par notre belle zone d'upload -->
+                    <div class="upload-zone" onclick="document.getElementById('id_portfolio_fichier').click()">
+                        <i class="ti ti-upload" aria-hidden="true"></i>
+                        <div class="upload-zone-text">
+                            Clique pour choisir un fichier
+                        </div>
+                        <div class="upload-zone-hint">PDF, DOCX — max 10 Mo</div>
+                        <!-- texte qui s'affiche quand un fichier est choisi -->
+                        <div id="file-name" style="margin-top:8px;font-size:12px;color:var(--info);display:none"></div>
+                    </div>
+                    <!-- input caché — c'est lui qui envoie vraiment le fichier -->
+                    <div style="display:none">{{ form.portfolio_fichier }}</div>
+                    {% if form.portfolio_fichier.errors %}
+                        {% for error in form.portfolio_fichier.errors %}
+                        <div class="form-error">
+                            <i class="ti ti-alert-circle"></i> {{ error }}
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="separator">ou</div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.portfolio_lien.id_for_label }}">
+                        Lien portfolio (GitHub, Behance, Drive...)
+                    </label>
+                    {{ form.portfolio_lien }}
+                    {% if form.portfolio_lien.errors %}
+                        {% for error in form.portfolio_lien.errors %}
+                        <div class="form-error">
+                            <i class="ti ti-alert-circle"></i> {{ error }}
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                    <div class="form-error" style="margin-bottom:12px">
+                        <i class="ti ti-alert-circle"></i> {{ error }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <button type="submit" class="btn btn-primary btn-full" style="margin-top:8px">
+                    Envoyer pour validation
+                    <i class="ti ti-arrow-right" aria-hidden="true"></i>
+                </button>
+
+                <div class="notice notice-warning">
+                    <i class="ti ti-clock" style="flex-shrink:0;margin-top:1px" aria-hidden="true"></i>
+                    Ton profil passera par l'administrateur avant d'être publié. Tu seras informé sous 24h.
+                </div>
+
+            </form>
+        </div>
+
+        <!-- ===== PANNEAU INFORMATIONS ===== -->
+        <div class="info-panel">
+
+            <div class="info-card">
+                <div class="info-card-title">
+                    <i class="ti ti-list-check" style="color:var(--info)" aria-hidden="true"></i>
+                    Comment ça marche ?
+                </div>
+                <div class="step-item">
+                    <div class="step-num">1</div>
+                    <div class="step-text">Tu remplis le formulaire avec tes informations et ton portfolio.</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">2</div>
+                    <div class="step-text">L'administrateur reçoit ta demande dans son tableau de bord.</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">3</div>
+                    <div class="step-text">Après validation, ton profil est publié sur la page d'accueil.</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">4</div>
+                    <div class="step-text">Tu peux modifier ou supprimer ton profil à tout moment.</div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card-title">
+                    <i class="ti ti-shield-check" style="color:var(--success)" aria-hidden="true"></i>
+                    Ce qui sera visible
+                </div>
+                <div class="visible-item">
+                    <i class="ti ti-check" aria-hidden="true"></i> Nom et prénom
+                </div>
+                <div class="visible-item">
+                    <i class="ti ti-check" aria-hidden="true"></i> Filière
+                </div>
+                <div class="visible-item">
+                    <i class="ti ti-check" aria-hidden="true"></i> Numéro de téléphone
+                </div>
+                <div class="visible-item">
+                    <i class="ti ti-check" aria-hidden="true"></i> Fichier ou lien portfolio
+                </div>
+                <div class="visible-item">
+                    <i class="ti ti-check" aria-hidden="true"></i> Date de validation
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card-title">
+                    <i class="ti ti-users" style="color:var(--text-secondary)" aria-hidden="true"></i>
+                    Déjà sur la plateforme
+                </div>
+                <div class="quick-stats">
+                    <div class="quick-stat">
+                        <div class="quick-stat-val">{{ total_inscrits|default:"0" }}</div>
+                        <div class="quick-stat-label">inscrits</div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="quick-stat-val" style="color:var(--success)">
+                            {{ total_valides|default:"0" }}
+                        </div>
+                        <div class="quick-stat-label">validés</div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="quick-stat-val">6</div>
+                        <div class="quick-stat-label">filières</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// affiche le nom du fichier choisi dans la zone d'upload
+const fileInput = document.getElementById('id_portfolio_fichier');
+const fileNameDiv = document.getElementById('file-name');
+
+if (fileInput) {
+    fileInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            // files[0].name = nom du fichier choisi
+            fileNameDiv.textContent = '✓ ' + this.files[0].name;
+            fileNameDiv.style.display = 'block';
+        }
+    });
+}
+</script>
+{% endblock %}

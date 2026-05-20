@@ -1,0 +1,115 @@
+{% extends 'etudiants/base.html' %}
+{% block title %}Modifier mon profil — PortfolioEtu{% endblock %}
+
+{% block extra_css %}
+<style>
+.modifier-page {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 32px 24px;
+}
+.modifier-title { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+.modifier-sub   { font-size: 13px; color: var(--text-secondary); margin-bottom: 28px; }
+.form-row       { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.notice-warning {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 10px 14px; border-radius: var(--radius-md);
+    font-size: 12px; margin-top: 14px; line-height: 1.5;
+    background: var(--warning-bg); color: var(--warning);
+    border: 0.5px solid #fde68a;
+}
+@media (max-width: 600px) {
+    .modifier-page { padding: 20px 16px; }
+    .form-row { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="modifier-page">
+
+    <h1 class="modifier-title">Modifier mon profil</h1>
+    <p class="modifier-sub">
+        Toute modification repassera par validation avant d'être publiée.
+    </p>
+
+    <div class="card">
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Nom</label>
+                    {{ form.nom }}
+                    {% for error in form.nom.errors %}
+                    <div class="form-error"><i class="ti ti-alert-circle"></i> {{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Prénom</label>
+                    {{ form.prenom }}
+                    {% for error in form.prenom.errors %}
+                    <div class="form-error"><i class="ti ti-alert-circle"></i> {{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Téléphone</label>
+                {{ form.telephone }}
+                {% for error in form.telephone.errors %}
+                <div class="form-error"><i class="ti ti-alert-circle"></i> {{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Filière</label>
+                {{ form.filiere }}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Nouveau fichier portfolio (laisser vide pour garder l'actuel)</label>
+                {{ form.portfolio_fichier }}
+                {% if etudiant.portfolio_fichier %}
+                <div style="font-size:11px;color:var(--text-secondary);margin-top:4px">
+                    Actuel :
+                    <a href="{{ etudiant.portfolio_fichier.url }}"
+                       target="_blank"
+                       style="color:var(--info)">
+                        voir le fichier
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Lien portfolio</label>
+                {{ form.portfolio_lien }}
+            </div>
+
+            {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                <div class="form-error" style="margin-bottom:12px">
+                    <i class="ti ti-alert-circle"></i> {{ error }}
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            <div style="display:flex;gap:10px;margin-top:8px">
+                <button type="submit" class="btn btn-primary" style="flex:1;justify-content:center">
+                    <i class="ti ti-check" aria-hidden="true"></i>
+                    Enregistrer les modifications
+                </button>
+                <a href="{% url 'etudiants:mon_espace' %}" class="btn btn-outline">
+                    Annuler
+                </a>
+            </div>
+
+            <div class="notice-warning">
+                <i class="ti ti-clock" style="flex-shrink:0;margin-top:1px" aria-hidden="true"></i>
+                Après modification ton profil repassera en attente de validation par l'admin.
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
