@@ -10,22 +10,90 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+# portfolioetu/settings.py
+
+# on importe os pour lire les variables d'environnement
+import os
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+from dotenv import load_dotenv
+
+# load_dotenv() lit le fichier .env et charge toutes les variables
+# dans l'environnement — après ça, os.environ.get() les trouve
+load_dotenv()
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# ============================================================
+# SÉCURITÉ — variables d'environnement
+# On ne met JAMAIS les mots de passe directement dans le code
+# car le code peut être partagé sur GitHub
+# Les variables d'environnement sont stockées sur le serveur
+# ============================================================
+
+# SECRET_KEY = clé secrète Django
+# os.environ.get() = lit une variable d'environnement
+# le 2ème argument = valeur par défaut si la variable n'existe pas
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY',
+    'django-insecure-dev-key-change-in-production'
+)
+
+# DEBUG = False en production pour ne pas afficher les erreurs aux visiteurs
+# on lit la variable d'environnement DEBUG
+# si elle vaut 'True' → True, sinon → False
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+
+# ALLOWED_HOSTS = adresses autorisées à accéder au site
+# en développement : localhost seulement
+# en production : on ajoutera le vrai nom de domaine
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost 127.0.0.1').split(' ')
+
+# ============================================================
+# BASE DE DONNÉES POSTGRESQL
+# ============================================================
+DATABASES = {
+    'default': {
+        # on utilise le moteur PostgreSQL
+        'ENGINE': 'django.db.backends.postgresql',
+
+        # NAME = nom de la base de données qu'on a créée
+        'NAME': os.environ.get('DB_NAME', 'portfolioetu_db'),
+
+        # USER = utilisateur PostgreSQL qu'on a créé
+        'USER': os.environ.get('DB_USER', 'portfolioetu_user'),
+
+        # PASSWORD = mot de passe de l'utilisateur
+        # on le lit depuis une variable d'environnement
+        # pour ne jamais l'écrire en clair dans le code
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'vivalasvegas'),
+
+        # HOST = adresse du serveur PostgreSQL
+        # 'localhost' = sur le même ordinateur
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+
+        # PORT = port d'écoute de PostgreSQL
+        # 5432 est le port par défaut de PostgreSQL
+        'PORT': os.environ.get('DB_PORT', '5432'),
+    }
+}
+
+#from pathlib import Path
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+#BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-8d^-__oq_f1e)%s4!u=gv$bc=84z+zmqx#(z1h0c+@i^vsq@am'
+#SECRET_KEY = 'django-insecure-8d^-__oq_f1e)%s4!u=gv$bc=84z+zmqx#(z1h0c+@i^vsq@am'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+#DEBUG = True
 
-ALLOWED_HOSTS = []
+#ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -73,12 +141,12 @@ WSGI_APPLICATION = 'porfolioetu.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#    }
+#}
 
 
 # Password validation

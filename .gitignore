@@ -7,3 +7,20 @@ media/
 .staticfiles/
 .idea/
 .vscode/
+# fichiers sensibles
+.env
+
+# base de données SQLite (on utilise PostgreSQL maintenant)
+*.sqlite3
+
+# fichiers Python compilés
+__pycache__/
+*.pyc
+*.pyo
+
+# fichiers médias uploadés (trop lourds pour Git)
+media/
+
+# environnement virtuel
+venv/
+env/
