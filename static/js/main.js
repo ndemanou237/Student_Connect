@@ -62,3 +62,62 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
+
+
+// ============================================================
+// ANIMATION AU SCROLL — les cartes apparaissent en douceur
+// ============================================================
+const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+        // isIntersecting = l'élément est visible dans le viewport
+        if (entry.isIntersecting) {
+            entry.target.style.opacity    = '1';
+            entry.target.style.transform  = 'translateY(0)';
+            // on arrête d'observer cet élément après l'animation
+            observer.unobserve(entry.target);
+        }
+    });
+}, {
+    threshold: 0.1,  // déclenche quand 10% de la carte est visible
+    rootMargin: '0px 0px -30px 0px'
+});
+
+// on applique l'animation à toutes les cartes portfolio
+document.querySelectorAll('.portfolio-card').forEach(function(card, index) {
+    // état initial : invisible et décalé vers le bas
+    card.style.opacity   = '0';
+    card.style.transform = 'translateY(20px)';
+    // transition avec délai progressif selon la position de la carte
+    card.style.transition = 'opacity 0.4s ease ' + (index * 0.06) + 's, transform 0.4s ease ' + (index * 0.06) + 's';
+    observer.observe(card);
+});
+
+// ============================================================
+// COMPTEUR ANIMÉ — chiffres du héro qui s'incrémentent
+// ============================================================
+function animerCompteur(element, fin, duree) {
+    let debut = 0;
+    // requestAnimationFrame = animation fluide synchronisée avec le refresh
+    const startTime = performance.now();
+
+    function update(currentTime) {
+        const elapsed  = currentTime - startTime;
+        const progress = Math.min(elapsed / duree, 1);
+        // easeOut = l'animation ralentit à la fin
+        const easeOut  = 1 - Math.pow(1 - progress, 3);
+        element.textContent = Math.round(debut + (fin - debut) * easeOut);
+        if (progress < 1) requestAnimationFrame(update);
+    }
+
+    requestAnimationFrame(update);
+}
+
+// on anime tous les éléments <strong> dans les stats du héro
+document.querySelectorAll('.hero-stat strong').forEach(function(el) {
+    const valeur = parseInt(el.textContent, 10);
+    if (!isNaN(valeur) && valeur > 0) {
+        el.textContent = '0';
+        animerCompteur(el, valeur, 1200);
+    }
+});

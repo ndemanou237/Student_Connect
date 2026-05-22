@@ -333,31 +333,46 @@
 {% block content %}
 
 <!-- ===== SECTION HERO ===== -->
+
 <section class="hero">
     <div class="hero-inner">
-        <h1 class="hero-title">Portfolios des étudiants</h1>
+
+        <div class="hero-eyebrow">
+            <i class="ti ti-rosette-discount-check" aria-hidden="true"></i>
+            Plateforme officielle de portfolios
+        </div>
+
+        <h1 class="hero-title">
+            Découvrez les portfolios<br>
+            de nos étudiants
+        </h1>
+
         <p class="hero-sub">
-            Découvrez les travaux et profils des étudiants de toutes les filières.
-            Chaque portfolio a été vérifié et validé par l'administration.
+            Tous les profils sont soumis par les étudiants eux-mêmes
+            et validés par l'administration avant publication.
         </p>
+
         <div class="hero-stats">
             <div class="hero-stat">
                 <strong>{{ total_inscrits }}</strong>
                 étudiants inscrits
             </div>
+            <div class="hero-divider"></div>
             <div class="hero-stat">
                 <strong>{{ total_valides }}</strong>
                 portfolios publiés
             </div>
+            <div class="hero-divider"></div>
             <div class="hero-stat">
                 <strong>{{ filieres|length }}</strong>
-                filières représentées
+                filières
             </div>
-            <div class="hero-stat-verified">
-                <i class="ti ti-circle-check" aria-hidden="true"></i>
-                Tous les profils sont vérifiés
+            <div class="hero-verified">
+                <i class="ti ti-shield-check" aria-hidden="true"></i>
+                Tous vérifiés
             </div>
         </div>
+
     </div>
 </section>
 
@@ -426,68 +441,62 @@
 
         <!-- on boucle sur chaque étudiant validé -->
         {% for etudiant in etudiants %}
-        <div class="portfolio-card">
+        <!-- remplace l'ancien portfolio-card dans la boucle -->
+<div class="portfolio-card" data-filiere="{{ etudiant.filiere }}">
 
-            <div class="portfolio-card-top">
-                <!-- avatar avec les initiales du nom et prénom -->
-                <div class="avatar avatar-{{ etudiant.filiere }}">
-                    <!-- slice:":1" = prend seulement le 1er caractère -->
-                    {{ etudiant.nom|slice:":1" }}{{ etudiant.prenom|slice:":1" }}
-                </div>
-                <div>
-                    <div class="portfolio-name">{{ etudiant.nom }} {{ etudiant.prenom }}</div>
-                    <div class="portfolio-filiere">{{ etudiant.get_filiere_display }}</div>
-                    <!-- get_filiere_display = retourne le label lisible ('Génie Informatique')
-                         au lieu de la valeur stockée ('informatique') -->
-                </div>
-            </div>
-
-            <div class="portfolio-info">
-                <i class="ti ti-phone" aria-hidden="true"></i>
-                {{ etudiant.telephone }}
-            </div>
-
-            <div class="portfolio-info">
-                <i class="ti ti-calendar" aria-hidden="true"></i>
-                Validé le {{ etudiant.date_modification|date:"d M Y" }}
-                <!-- |date:"d M Y" = formate la date : "13 mai 2026" -->
-            </div>
-
-            <div class="portfolio-info">
-                <i class="ti ti-file" aria-hidden="true"></i>
-                {% if etudiant.portfolio_fichier %}
-                    Fichier PDF
-                {% elif etudiant.portfolio_lien %}
-                    Lien portfolio
-                {% endif %}
-            </div>
-
-            <div class="portfolio-card-footer">
-                <!-- badge filière coloré -->
-                <span class="badge badge-{{ etudiant.filiere }}">
-                    {{ etudiant.get_filiere_display }}
-                </span>
-
-                <!-- lien vers le portfolio -->
-                {% if etudiant.portfolio_fichier %}
-                <a href="{{ etudiant.portfolio_fichier.url }}"
-                   target="_blank"
-                   class="portfolio-link">
-                    <i class="ti ti-external-link" aria-hidden="true"></i>
-                    Voir le portfolio
-                </a>
-                {% elif etudiant.portfolio_lien %}
-                <a href="{{ etudiant.portfolio_lien }}"
-                   target="_blank"
-                   class="portfolio-link">
-                    <i class="ti ti-external-link" aria-hidden="true"></i>
-                    Voir le portfolio
-                </a>
-                {% endif %}
-            </div>
-
+    <div class="portfolio-card-top">
+        <div class="avatar avatar-{{ etudiant.filiere }}">
+            {{ etudiant.nom|slice:":1" }}{{ etudiant.prenom|slice:":1" }}
         </div>
-        {% endfor %}
+        <div>
+            <div class="portfolio-name">
+                {{ etudiant.nom }} {{ etudiant.prenom }}
+            </div>
+            <div class="portfolio-filiere-text">
+                {{ etudiant.get_filiere_display }}
+            </div>
+        </div>
+    </div>
+
+    <div class="portfolio-info">
+        <i class="ti ti-phone" aria-hidden="true"></i>
+        {{ etudiant.telephone }}
+    </div>
+
+    <div class="portfolio-info">
+        <i class="ti ti-calendar" aria-hidden="true"></i>
+        Validé le {{ etudiant.date_modification|date:"d M Y" }}
+    </div>
+
+    <div class="portfolio-info">
+        <i class="ti ti-file" aria-hidden="true"></i>
+        {% if etudiant.portfolio_fichier %}Fichier PDF
+        {% elif etudiant.portfolio_lien %}Lien portfolio
+        {% endif %}
+    </div>
+
+    <div class="portfolio-card-footer">
+        <span class="badge badge-{{ etudiant.filiere }}">
+            {{ etudiant.get_filiere_display }}
+        </span>
+        {% if etudiant.portfolio_fichier %}
+        <a href="{{ etudiant.portfolio_fichier.url }}"
+           target="_blank"
+           class="portfolio-link">
+            <i class="ti ti-external-link" aria-hidden="true"></i>
+            Voir le portfolio
+        </a>
+        {% elif etudiant.portfolio_lien %}
+        <a href="{{ etudiant.portfolio_lien }}"
+           target="_blank"
+           class="portfolio-link">
+            <i class="ti ti-external-link" aria-hidden="true"></i>
+            Voir le portfolio
+        </a>
+        {% endif %}
+    </div>
+
+</div>
 
     </div>
 
